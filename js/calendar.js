@@ -4,8 +4,20 @@ function addEventToJson(event) {
     localStorage.setItem('events', JSON.stringify(events));
 }
 
+function updateEventToJson(event) {
+    var events = JSON.parse(localStorage.getItem('events')) || [];
+    var index = events.findIndex(function (e) {
+        return e.id == event.id;
+    });
+    if (index !== -1) {
+        events[index] = event;
+    }
+    localStorage.setItem('events', JSON.stringify(events));
+}
+
 function render() {
     var events = JSON.parse(localStorage.getItem('events')) || [];
+    var eventCount = events.length;
     var calendarEl = document.getElementById('calendar');
     var calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'timeGridWorkTime',
@@ -24,6 +36,7 @@ function render() {
             center: 'title',
             right: 'dayGridMonth,timeGridWorkTime,timeGridWeek,timeGridDay'
         },
+        events: events,
         selectable: true,
         select: function (info) {
             console.log(info);
@@ -32,16 +45,37 @@ function render() {
                 calendar.addEvent({
                     title: title,
                     start: info.startStr,
-                    end: info.endStr
+                    end: info.endStr,
+                    id: eventCount
                 });
                 addEventToJson({
                     title: title,
                     start: info.startStr,
-                    end: info.endStr
+                    end: info.endStr,
+                    id: eventCount
                 });
+                eventCount++;
             }
         },
-        events: events
+        editable: true,
+        eventDrop: function (info) {
+            var event = info.event;
+            updateEventToJson({
+                title: event.title,
+                start: event.startStr,
+                end: event.endStr,
+                id: event.id
+            });
+        },
+        eventResize: function (info) {
+            var event = info.event;
+            updateEventToJson({
+                title: event.title,
+                start: event.startStr,
+                end: event.endStr,
+                id: event.id
+            });
+        },
     });
     calendar.render();
 }
