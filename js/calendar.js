@@ -76,6 +76,20 @@ function render() {
                 id: event.id
             });
         },
+        eventClick: function (info) {
+            if (confirm("Are you sure you want to delete this event?")) {
+                var event = info.event;
+                event.remove();
+                var events = JSON.parse(localStorage.getItem('events')) || [];
+                var index = events.findIndex(function (e) {
+                    return e.id == event.id;
+                });
+                if (index !== -1) {
+                    events.splice(index, 1);
+                }
+                localStorage.setItem('events', JSON.stringify(events));
+            }
+        },
     });
     calendar.render();
 }
